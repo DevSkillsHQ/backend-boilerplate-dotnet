@@ -22,7 +22,7 @@ namespace AccountMgmt.DB
 	/// </summary>
 	public partial class AccountsDB : LinqToDB.Data.DataConnection
 	{
-		public ITable<Account> Accounts { get { return this.GetTable<Account>(); } }
+		public ITable<Transaction> Transactions { get { return this.GetTable<Transaction>(); } }
 
 		public AccountsDB()
 		{
@@ -41,16 +41,16 @@ namespace AccountMgmt.DB
 		partial void InitMappingSchema();
 	}
 
-	[Table("Accounts")]
-	public partial class Account
+	[Table("Transactions")]
+	public partial class Transaction
 	{
-		[Column("account_id"), PrimaryKey,  NotNull] public string AccountId { get; set; } // varchar(36)
-		[Column("balance"),       Nullable         ] public int?   Balance   { get; set; } // int
+		[Column("account_id"), PrimaryKey, NotNull] public string AccountId { get; set; } // varchar(36)
+		[Column("balance"),                NotNull] public int    Balance   { get; set; } // int
 	}
 
 	public static partial class TableExtensions
 	{
-		public static Account Find(this ITable<Account> table, string AccountId)
+		public static Transaction Find(this ITable<Transaction> table, string AccountId)
 		{
 			return table.FirstOrDefault(t =>
 				t.AccountId == AccountId);

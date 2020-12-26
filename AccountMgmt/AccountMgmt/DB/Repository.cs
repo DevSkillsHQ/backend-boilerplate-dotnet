@@ -1,4 +1,5 @@
-﻿using LinqToDB;
+﻿using AccountMgmt.Models;
+using LinqToDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,24 +21,20 @@ namespace AccountMgmt.DB
             _db.Dispose();
         }
 
-        public async Task<int?> GetBalance(string id)
+        public async Task<int> GetBalance(string id)
         {
-            return await _db.Accounts.Select(a => a.Balance).FirstOrDefaultAsync();
+            return await _db.Transactions.Where(a => a.AccountId == id).SumAsync(a => a.Balance);
         }
 
         public async Task PostAmount(string id, int amount)
         {
-            await _db.BeginTransactionAsync();
-            try
-            {
-                await _db.Accounts.InsertOrUpdateAsync(() => new Account { AccountId = id, Balance = amount }, a => new Account { AccountId = id, Balance = a.Balance + amount });
-            }
-            catch
-            {
-                await _db.RollbackTransactionAsync();
-                return;
-            }
-            await _db.CommitTransactionAsync();
+            await _db.Transactions.InsertAsync(() => new Transaction { AccountId = id, Balance = amount });
+        }
+
+        public async Task<TransactionModel> GetTransaction(string id)
+        {
+            return await _db.Transactions.Where(a => a.AccountId == id)
+                .Select(a => new TransactionModel { Account_Id = new Guid(a.AccountId), Amount = a.Balance }).FirstOrDefaultAsync();
         }
     }
 }
