@@ -13,7 +13,7 @@ namespace AccountMgmt.Controllers
         [HttpGet]
         public string Get()
         {
-            return "Pong"; //TODO: Check actual health
+            return "Pong"; //TODO: Check db health
         }
     }
 }

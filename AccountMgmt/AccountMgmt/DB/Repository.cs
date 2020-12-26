@@ -6,14 +6,38 @@ using System.Threading.Tasks;
 
 namespace AccountMgmt.DB
 {
-    public static class Repository
+    public class Repository: IDisposable
     {
-        public async static Task<int?> GetBalance(string id)
+        AccountsDB _db;
+        
+        public Repository(AccountsDB db)
         {
-            using (var db = new AccountsDB("Default"))
+            _db = db;
+        }
+
+        public void Dispose()
+        {
+            _db.Dispose();
+        }
+
+        public async Task<int?> GetBalance(string id)
+        {
+            return await _db.Accounts.Select(a => a.Balance).FirstOrDefaultAsync();
+        }
+
+        public async Task PostAmount(string id, int amount)
+        {
+            await _db.BeginTransactionAsync();
+            try
             {
-                return await db.Accounts.Select(a => a.Balance).FirstOrDefaultAsync();
+                await _db.Accounts.InsertOrUpdateAsync(() => new Account { AccountId = id, Balance = amount }, a => new Account { AccountId = id, Balance = a.Balance + amount });
             }
+            catch
+            {
+                await _db.RollbackTransactionAsync();
+                return;
+            }
+            await _db.CommitTransactionAsync();
         }
     }
 }

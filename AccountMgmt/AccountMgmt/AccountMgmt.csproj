@@ -13,6 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="DB\accounts.sqlite">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="DB\AccountsModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AccountsModel.generated.cs</LastGenOutput>
