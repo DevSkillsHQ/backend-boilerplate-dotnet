@@ -22,10 +22,10 @@ namespace AccountMgmt.Controllers
         public async Task<IActionResult> GetBalance(string account_id)
         {
             var bal = await _repository.GetBalance(account_id);
-            //if (bal.HasValue)
+            if (bal.HasValue)
                 return Ok(bal);
-            //else
-            //    return NotFound();
+            else
+                return NotFound();
         }
 
         [HttpPost("amount")]
@@ -43,6 +43,16 @@ namespace AccountMgmt.Controllers
                 return Ok(tr);
             else
                 return NotFound();
+        }
+
+        [HttpGet("max_transaction_volume")]
+        public async Task<IActionResult> GetTransactionVolume()
+        {
+            var accts = await _repository.GetTransactionVolume();
+            if (accts == null)
+                return NotFound();
+            else
+                return Ok(accts);
         }
     }
 }

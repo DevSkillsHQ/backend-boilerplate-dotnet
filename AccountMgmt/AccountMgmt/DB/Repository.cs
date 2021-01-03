@@ -16,25 +16,33 @@ namespace AccountMgmt.DB
             _db = db;
         }
 
-        public void Dispose()
+        public async Task<int?> GetBalance(string id)
         {
-            _db.Dispose();
-        }
-
-        public async Task<int> GetBalance(string id)
-        {
-            return await _db.Transactions.Where(a => a.AccountId == id).SumAsync(a => a.Balance);
+            return await _db.Transactions.Where(a => a.AccountId == id).SumAsync(t => t.Balance);
         }
 
         public async Task PostAmount(string id, int amount)
         {
-            await _db.Transactions.InsertAsync(() => new Transaction { AccountId = id, Balance = amount });
+            await _db.Transactions.InsertAsync(() => new Transaction { TransactionId = Guid.NewGuid().ToString(), AccountId = id, Balance = amount });
         }
 
-        public async Task<TransactionModel> GetTransaction(string id)
+        public async Task<Transaction> GetTransaction(string id)
         {
-            return await _db.Transactions.Where(a => a.AccountId == id)
-                .Select(a => new TransactionModel { Account_Id = new Guid(a.AccountId), Amount = a.Balance }).FirstOrDefaultAsync();
+            return await _db.Transactions.Where(a => a.AccountId == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<string>> GetTransactionVolume()
+        {
+            var list = await _db.Transactions.GroupBy(t => t.AccountId).GroupBy(tl => tl.Count()).OrderBy(t => t.Key).FirstOrDefaultAsync();
+            if (list != null)
+                return list.Accts.Select(t => t.Key);
+            else
+                return null;
+        }
+
+        public void Dispose()
+        {
+            _db.Dispose();
         }
     }
 }
