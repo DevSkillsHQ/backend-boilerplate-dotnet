@@ -1,5 +1,6 @@
 ﻿using AccountMgmt.Models;
 using LinqToDB;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace AccountMgmt.DB
     {
         AccountsDB _db;
         
+        //TODO: add logger and resiliense lib
         public Repository(AccountsDB db)
         {
             _db = db;
@@ -21,21 +23,22 @@ namespace AccountMgmt.DB
             return await _db.Transactions.Where(a => a.AccountId == id).SumAsync(t => t.Balance);
         }
 
-        public async Task PostAmount(string id, int amount)
+        public async Task PostAmount(Guid id, TransactionModel transaction)
         {
-            await _db.Transactions.InsertAsync(() => new Transaction { TransactionId = Guid.NewGuid().ToString(), AccountId = id, Balance = amount });
+            await _db.Transactions.InsertAsync(() => new Transaction { TransactionId = id.ToString(), AccountId = transaction.Account_Id.ToString(), Balance = transaction.Amount });
         }
 
         public async Task<Transaction> GetTransaction(string id)
         {
-            return await _db.Transactions.Where(a => a.AccountId == id).FirstOrDefaultAsync();
+            return await _db.Transactions.Where(a => a.TransactionId == id).FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<string>> GetTransactionVolume()
+        public async Task<TransactionVolume> GetTransactionVolume()
         {
-            var list = await _db.Transactions.GroupBy(t => t.AccountId).GroupBy(tl => tl.Count()).OrderBy(t => t.Key).FirstOrDefaultAsync();
+            //TODO: probably not the most effective way, need to test performance
+            var list = await _db.Transactions.GroupBy(t => new { t.AccountId }, t => t.AccountId).GroupBy(tg => tg.Count()).OrderByDescending(tg => tg.Key).FirstOrDefaultAsync();
             if (list != null)
-                return list.Accts.Select(t => t.Key);
+                return new TransactionVolume { MaxVolume = list.Key, Accounts = list.Select(t => t.Key.AccountId).ToList() };
             else
                 return null;
         }
