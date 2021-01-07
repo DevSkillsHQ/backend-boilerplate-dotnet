@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "build": "dotnet build ./AccountMgmt/AccountMgmt.sln",
-    "start": "./AccountMgmt/bin/Debug/net5.0/AccountMgmt.exe",
+    "start": "cd ./AccountMgmt/AccountMgmt/bin/Debug/net5.0 && ./AccountMgmt.exe",
     "test": "cypress run"
   },
   "devDependencies": {
