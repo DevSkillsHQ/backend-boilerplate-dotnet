@@ -22,7 +22,7 @@ jobs:
           wait-on: ${{ steps.fetchApiUrl.outputs.apiUrl }}
       - name: Set result_url env var
         if: always()
-        run: echo "result_url=https://app.devskills.co/api/assignment-status" >> $GITHUB_ENV
+        run: echo "result_url=http://mockbin.com" >> $GITHUB_ENV
       - name: Set github_repo env var
         if: always()
         run: echo "github_repo=$GITHUB_REPOSITORY" >> $GITHUB_ENV
