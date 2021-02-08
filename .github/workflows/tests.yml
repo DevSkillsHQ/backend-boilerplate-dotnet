@@ -27,12 +27,12 @@ jobs:
         if: always()
         run: echo "github_repo=$GITHUB_REPOSITORY" >> $GITHUB_ENV
       - uses: joelwmale/webhook-action@master
-        if: ${{ result_url }} && failure()
+        if: ${{ env.result_url }} && failure()
         with:
           url: ${{ env.result_url }}
           body: '{"assignmentRepository": "${{ env.github_repo }}","status": "failed"}'
       - uses: joelwmale/webhook-action@master
-        if: ${{ result_url }} && success()
+        if: ${{ env.result_url }} && success()
         with:
           url: ${{ env.result_url }}
           body: '{"assignmentRepository": "${{ env.github_repo }}","status": "passed"}'
