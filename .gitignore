@@ -56,3 +56,6 @@ artifacts/
 *.pidb
 *.svclog
 *.scc
+
+.idea/
+AccountMgmt.sln.DotSettings.user
