@@ -22,17 +22,17 @@ jobs:
           wait-on: ${{ steps.fetchApiUrl.outputs.apiUrl }}
       - name: Set result_url env var
         if: always()
-        run: echo "result_url=" >> $GITHUB_ENV
+        run: echo "result_url=http://mockbin.com/request" >> $GITHUB_ENV
       - name: Set github_repo env var
         if: always()
         run: echo "github_repo=$GITHUB_REPOSITORY" >> $GITHUB_ENV
       - uses: joelwmale/webhook-action@master
-        if: ${{ env.result_url }} && failure()
+        if: failure()
         with:
           url: ${{ env.result_url }}
           body: '{"assignmentRepository": "${{ env.github_repo }}","status": "failed"}'
       - uses: joelwmale/webhook-action@master
-        if: ${{ env.result_url }} && success()
+        if: success()
         with:
           url: ${{ env.result_url }}
           body: '{"assignmentRepository": "${{ env.github_repo }}","status": "passed"}'
