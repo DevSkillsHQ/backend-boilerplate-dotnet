@@ -2,8 +2,8 @@
   "name": "backend-boilerplate",
   "version": "0.0.1",
   "scripts": {
-    "build": "dotnet build ./AccountMgmt/AccountMgmt.sln",
-    "start": "cd ./AccountMgmt/AccountMgmt && dotnet run",
+    "build": "dotnet build ./backend/backend.sln",
+    "start": "cd ./backend/backend && dotnet run",
     "test": "cypress run"
   },
   "devDependencies": {

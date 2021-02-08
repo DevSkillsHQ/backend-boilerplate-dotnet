@@ -58,4 +58,4 @@ artifacts/
 *.scc
 
 .idea/
-AccountMgmt.sln.DotSettings.user
+backend.sln.DotSettings.user
