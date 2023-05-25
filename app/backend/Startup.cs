@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 
 namespace backend
 {
@@ -9,6 +10,10 @@ namespace backend
     {
         public Startup(IConfiguration configuration)
         {
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "Properties", "launchSettings.json"))
+                .AddEnvironmentVariables()
+                .Build();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
