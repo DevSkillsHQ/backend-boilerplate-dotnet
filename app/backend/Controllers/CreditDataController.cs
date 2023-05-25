@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Routing;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using backend.Exceptions;
+using Newtonsoft.Json;
+using backend.Models.CreditDataModels;
 
 namespace backend.Controllers
 {
@@ -14,25 +18,29 @@ namespace backend.Controllers
         //private const string applicationUrl = Environment.GetEnvironmentVariable("applicationUrl");
 
         [HttpGet("/credit-data/{ssn}")]
-        public async Task<string> GetAggregateData(string ssn)
+        public async Task<IActionResult> GetAggregateData(string ssn)
         {
-            string content = string.Empty;
-            var personalDetailsBody = await GetPersonalDetails(ssn);
-            var assessedIncomeBody = await GetAssessedIncome(ssn);
-            var debtBody = await GetDebt(ssn);
+            try
+            {
+                var aggregateData = new List<string>
+                {
+                    await GetPersonalDetails(ssn),
+                    await GetAssessedIncome(ssn),
+                    await GetDebt(ssn)
+                };
 
-            var personalDetailsList = JObject.Parse(personalDetailsBody);
-            var assessedIncomeList = JObject.Parse(assessedIncomeBody);
-            var debtList = JObject.Parse(debtBody);
+                var aggregateJObjects = new JObject();
+                aggregateData.ForEach(d => aggregateJObjects.Merge(JObject.Parse(d)));
 
-            var contentObject = new JObject();
-            contentObject.Merge(personalDetailsList);
-            contentObject.Merge(assessedIncomeList);
-            contentObject.Merge(debtList);
+                var content = aggregateJObjects.ToString();
+                var temp = JsonConvert.DeserializeObject<AggregateDataModel>(content);
 
-            content = contentObject.ToString();
-
-            return content;
+                return Ok(temp);
+            }
+            catch (HttpResponseException ex)
+            {
+                return StatusCode(ex.StatusCode);
+            }
         }
 
         public async Task<string> GetPersonalDetails(string ssn)
@@ -49,7 +57,7 @@ namespace backend.Controllers
                 }
                 else
                 {
-
+                    throw new HttpResponseException(((int)response.StatusCode));
                 }
             }
             return content;
@@ -69,7 +77,7 @@ namespace backend.Controllers
                 }
                 else
                 {
-
+                    throw new HttpResponseException(((int)response.StatusCode));
                 }
             }
             return content;
@@ -89,7 +97,7 @@ namespace backend.Controllers
                 }
                 else
                 {
-
+                    throw new HttpResponseException(((int)response.StatusCode));
                 }
             }
             return content;
