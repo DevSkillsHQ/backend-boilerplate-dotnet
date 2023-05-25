@@ -14,28 +14,27 @@ namespace backend.Controllers
     [Route("[controller]")]
     public class CreditDataController : Controller
     {
-        private const string devSkillEndpoint = "https://infra.devskills.app/api";
-        //private const string applicationUrl = Environment.GetEnvironmentVariable("applicationUrl");
+        private const string devSkillsApi = "https://infra.devskills.app/api";
 
         [HttpGet("/credit-data/{ssn}")]
         public async Task<IActionResult> GetAggregateData(string ssn)
         {
             try
             {
-                var aggregateData = new List<string>
+                var aggregateDataList = new List<string>
                 {
                     await GetPersonalDetails(ssn),
                     await GetAssessedIncome(ssn),
                     await GetDebt(ssn)
                 };
 
-                var aggregateJObjects = new JObject();
-                aggregateData.ForEach(d => aggregateJObjects.Merge(JObject.Parse(d)));
+                var aggregateDataJObject = new JObject();
+                aggregateDataList.ForEach(d => aggregateDataJObject.Merge(JObject.Parse(d)));
 
-                var content = aggregateJObjects.ToString();
-                var temp = JsonConvert.DeserializeObject<AggregateDataModel>(content);
+                var aggregateDataString = aggregateDataJObject.ToString();
+                var aggregateDataBody = JsonConvert.DeserializeObject<AggregateDataModel>(aggregateDataString);
 
-                return Ok(temp);
+                return Ok(aggregateDataBody);
             }
             catch (HttpResponseException ex)
             {
@@ -43,12 +42,11 @@ namespace backend.Controllers
             }
         }
 
-        public async Task<string> GetPersonalDetails(string ssn)
-        {
+        public async Task<string>GetCreditData(string inputEndpoint) {
             string content = string.Empty;
             using (var client = new HttpClient())
             {
-                var endpoint = $"{devSkillEndpoint}/credit-data/personal-details/{ssn}";
+                var endpoint = $"{devSkillsApi}/credit-data{inputEndpoint}";
                 var response = await client.GetAsync(endpoint);
 
                 if (response.IsSuccessStatusCode)
@@ -57,50 +55,28 @@ namespace backend.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(((int)response.StatusCode));
+                    throw new HttpResponseException((int)response.StatusCode);
                 }
             }
             return content;
+        }
+
+        public async Task<string> GetPersonalDetails(string ssn)
+        {
+            string endpoint = $"/personal-details/{ssn}";
+            return await GetCreditData(endpoint);
         }
 
         public async Task<string> GetAssessedIncome(string ssn)
         {
-            string content = string.Empty;
-            using (var client = new HttpClient())
-            {
-                var endpoint = $"{devSkillEndpoint}/credit-data/assessed-income/{ssn}";
-                var response = await client.GetAsync(endpoint);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    content = await response.Content.ReadAsStringAsync();
-                }
-                else
-                {
-                    throw new HttpResponseException(((int)response.StatusCode));
-                }
-            }
-            return content;
+            string endpoint = $"/assessed-income/{ssn}";
+            return await GetCreditData(endpoint);
         }
 
         public async Task<string> GetDebt(string ssn)
         {
-            string content = string.Empty;
-            using (var client = new HttpClient())
-            {
-                var endpoint = $"{devSkillEndpoint}/credit-data/debt/{ssn}";
-                var response = await client.GetAsync(endpoint);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    content = await response.Content.ReadAsStringAsync();
-                }
-                else
-                {
-                    throw new HttpResponseException(((int)response.StatusCode));
-                }
-            }
-            return content;
+            string endpoint = $"/debt/{ssn}";
+            return await GetCreditData(endpoint);
         }
     }
 }
