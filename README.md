@@ -10,7 +10,7 @@ Use it for setting up a take-home interview assignment or a portfolio project.
 
 ## Tech Stack
 
-- .NET8
+- .NET 10
 - Cypress
 - GitHub Actions
 
